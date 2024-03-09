@@ -29,7 +29,7 @@ def main():
         deterministic=True,
         devices="auto",
         accelerator="auto",
-        log_every_n_steps=100
+        log_every_n_steps=10
     )
 
     trainer.fit(model, lit_data_module)
