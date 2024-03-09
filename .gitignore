@@ -1,5 +1,5 @@
 data/
-src/draft.ipynb
+lightning_logs/
 
 make_env_ready.sh
 

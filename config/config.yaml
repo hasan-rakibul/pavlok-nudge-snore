@@ -1,0 +1,11 @@
+seed: 42
+
+data:
+  data_dir: ./data/
+  batch_size: 32
+  n_mfcc: 25
+  max_mfcc_length: 85 # may be calculated as floor(0.5 * sample_rate * window_length / hop_length) + 1
+  num_workers: 12
+train:
+  lr: 0.001
+  max_epochs: 100
