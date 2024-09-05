@@ -1,7 +1,8 @@
 data/
-lightning_logs/
+logs/
 
 make_env_ready.sh
+req_resources.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

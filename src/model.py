@@ -1,6 +1,6 @@
 import torch
 import lightning as L
-
+import torchmetrics as tm
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -39,14 +39,36 @@ class CNN1D(L.LightningModule):
         x, y = batch
         y_pred = self(x)
         loss = self.criterion(y_pred, y)
-        self.log('train_loss', loss)
+        self.log('train_loss', loss, sync_dist=True)
         return loss
     
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self(x)
         loss = self.criterion(y_pred, y)
-        self.log('val_loss', loss)
+        self.log('val_loss', loss, sync_dist=True)
+    
+    def test_step(self, batch, batch_idx):
+        x, y = batch
+        y_pred = self(x)
+
+        # Calculate classification metrics
+        y = y.to("cpu") # move to cpu for metrics calculation
+        y_pred = torch.round(torch.sigmoid(y_pred)).to("cpu")
+        y = y.int()
+        y_pred = y_pred.int()
+        print(f"DEBUG: {y} is predicted as {y_pred}")
+        accuracy = tm.classification.BinaryAccuracy()(y_pred, y)
+        precision = tm.classification.BinaryPrecision()(y_pred, y)
+        recall = tm.classification.BinaryRecall()(y_pred, y)
+        f1_score = tm.classification.BinaryF1Score()(y_pred, y)
+        auc = tm.classification.BinaryAUROC()(y_pred, y)
+
+        self.log('test_accuracy', accuracy, sync_dist=True)
+        self.log('test_precision', precision, sync_dist=True)
+        self.log('test_recall', recall, sync_dist=True)
+        self.log('test_f1_score', f1_score, sync_dist=True)
+        self.log('test_auc', auc, sync_dist=True)
     
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.config.train.lr)

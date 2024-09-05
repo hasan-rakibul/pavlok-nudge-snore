@@ -2,6 +2,8 @@ import os
 import torch
 import torchaudio
 import lightning as L
+import numpy as np
+import random
 
 class DataModule(torch.utils.data.Dataset):
     def __init__(self, data_dir, n_mfcc, max_mfcc_length):
@@ -58,6 +60,45 @@ class DataModule(torch.utils.data.Dataset):
         
         return mfcc
     
+# taken from https://pytorch.org/docs/stable/notes/randomness.html
+def _seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed) 
+
+def _get_dataloader(dataset, config, shuffle):
+    # making sure the shuffling is reproducible
+    g = torch.Generator()
+    g.manual_seed(config.seed)
+    
+    return torch.utils.data.DataLoader(
+        dataset,
+        batch_size=config.data.batch_size,
+        shuffle=shuffle,
+        num_workers=config.data.num_workers,
+        worker_init_fn=_seed_worker,
+        generator=g
+    )
+
+def get_train_val_dataloader(config):
+    assert 'train' in os.listdir(config.data.data_dir) and 'val' in os.listdir(config.data.data_dir), 'Train and val directory found.'    
+    train_dir = os.path.join(config.data.data_dir, 'train')
+    val_dir = os.path.join(config.data.data_dir, 'val')
+    train_dataset = DataModule(train_dir, config.data.n_mfcc, config.data.max_mfcc_length)
+    val_dataset = DataModule(val_dir, config.data.n_mfcc, config.data.max_mfcc_length)
+
+    train_loader = _get_dataloader(train_dataset, config, shuffle=True)
+    val_loader = _get_dataloader(val_dataset, config, shuffle=False)
+
+    return train_loader, val_loader
+    
+def get_test_dataloader(config):
+    assert 'test' in os.listdir(config.data.data_dir), 'Test directory not found.'    
+    test_dir = os.path.join(config.data.data_dir, 'test')
+    test_dataset = DataModule(test_dir, config.data.n_mfcc, config.data.max_mfcc_length)
+    test_loader = _get_dataloader(test_dataset, config, shuffle=False)
+    return test_loader
+
 
 class LitDataModule(L.LightningDataModule):
     def __init__(self, data_dir, batch_size, n_mfcc, max_mfcc_length, num_workers):
