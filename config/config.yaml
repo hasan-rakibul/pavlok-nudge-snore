@@ -1,17 +1,16 @@
-expt_name: Optimised_v8
+expt_name: Optimised_v10
 
 logging_dir: ./logs/
 # checkpoint: False
-checkpoint: ./logs/20240906_211042_Optimised_v8/lightning_logs/version_15330562/checkpoints/epoch=50-step=153.ckpt
+checkpoint: ./logs/20240906_215442_Optimised_v10/lightning_logs/version_15330562/checkpoints/epoch=48-step=147.ckpt
 
 seed: 42
 
 arch:
-  # out_channel_conv1: 8
-  # out_channel_conv2: 16
-  # dropout: 0.4
-  out_channel_conv1: 8
-  dropout: 0.0
+  num_conv: 2
+  out_channel_conv: [8, 16]
+  pooling_kernel_size: 2
+  dropout: 0.4
 
 data:
   data_dir: ./data/

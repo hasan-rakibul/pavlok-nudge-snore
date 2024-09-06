@@ -8,23 +8,30 @@ class CNN1D(L.LightningModule):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.conv1 = nn.Conv1d(
-            in_channels=config.data.n_mfcc, 
-            out_channels=config.arch.out_channel_conv1, 
-            kernel_size=3, 
-            stride=1, 
-            padding=1
-        )
-        # self.conv2 = nn.Conv1d(
-        #     config.arch.out_channel_conv1, 
-        #     config.arch.out_channel_conv2, 
-        #     kernel_size=3, 
-        #     stride=1, 
-        #     padding=1
-        # )
 
-        # self.fc = nn.Linear(config.arch.out_channel_conv2 * (config.data.max_mfcc_length // 4), 1)
-        self.fc = nn.Linear(config.arch.out_channel_conv1 * (config.data.max_mfcc_length // 2), 1)
+        self.num_conv = config.arch.num_conv
+        self.pooling_kernel_size = config.arch.pooling_kernel_size
+
+        self.conv_layers = nn.ModuleList()
+        in_channels = config.data.n_mfcc
+        for i in range(self.num_conv):
+            out_channels = config.arch.out_channel_conv[i]
+            self.conv_layers.append(
+                nn.Conv1d(
+                    in_channels, 
+                    out_channels, 
+                    kernel_size=3, 
+                    stride=1, 
+                    padding=1
+                )
+            )
+            in_channels = out_channels
+        
+        self.fc = nn.Linear(
+            in_features=in_channels * (config.data.max_mfcc_length // (self.num_conv * self.pooling_kernel_size)),
+            out_features=1
+        )
+
         self.dropout = nn.Dropout(config.arch.dropout)
 
         self.criterion = nn.BCEWithLogitsLoss()
@@ -32,10 +39,9 @@ class CNN1D(L.LightningModule):
         self.save_hyperparameters()
         
     def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.max_pool1d(x, 2)
-        # x = F.relu(self.conv2(x))
-        # x = F.max_pool1d(x, 2)
+        for i in range(self.num_conv):
+            x = F.relu(self.conv_layers[i](x))
+            x = F.max_pool1d(x, self.pooling_kernel_size)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         x = self.dropout(x)
