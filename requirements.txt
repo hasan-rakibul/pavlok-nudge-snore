@@ -1,8 +1,6 @@
-# python 3.12.1
-torch
+# python 3.12.3
 lightning
 pandas
 numpy
-torchaudio
 omegaconf
 tensorboard

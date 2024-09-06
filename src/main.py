@@ -14,6 +14,7 @@ def main():
 
     if config.checkpoint:
         # use >./logs/... as logging_dir if checkpoint is provided
+        print(f"\nLoading checkpoint from {config.checkpoint}")
         logging_dir = os.path.join(*config.checkpoint.split("/")[:3])
     else:
         logging_dir=os.path.join(
@@ -26,10 +27,12 @@ def main():
     config.logging_dir = logging_dir # update logging_dir to use later
 
     if config.do_train:
+        print("\nTraining mode")
         train_loader, val_loader = get_train_val_dataloader(config)
         devices = "auto" # use all GPUs if available
 
     if config.do_test:
+        print("\nInference mode")
         test_loader = get_test_dataloader(config)
         devices = 1 # recommended to use 1 GPU for testing
 
@@ -63,9 +66,31 @@ def main():
         model = CNN1D.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     if config.do_test:
-        metrics = trainer.test(model, dataloaders=test_loader)
+        import torch
+        from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model = CNN1D.load_from_checkpoint(config.checkpoint)
+        model = model.to(device)
+        y_all, y_pred_all = [], []
+        for batch in test_loader:
+            x, y = batch
+            y_pred = model(x.to(device))
+            y_pred = torch.round(torch.sigmoid(y_pred)).int().tolist()
+            y_all.extend(y.tolist())
+            y_pred_all.extend(y_pred)
+    
+        accuracy = accuracy_score(y_all, y_pred_all)
+        precision = precision_score(y_all, y_pred_all)
+        recall = recall_score(y_all, y_pred_all)
+        f1 = f1_score(y_all, y_pred_all)
+        auc = roc_auc_score(y_all, y_pred_all)
         with open(os.path.join(logging_dir, "test_metrics.txt"), "w") as f:
-            f.write(str(metrics))
+            f.write(f"Accuracy: {accuracy}\n")
+            f.write(f"Precision: {precision}\n")
+            f.write(f"Recall: {recall}\n")
+            f.write(f"F1 Score: {f1}\n")
+            f.write(f"AUC: {auc}\n")
 
 if __name__ == "__main__":
     main()
