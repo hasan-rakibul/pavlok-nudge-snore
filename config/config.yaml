@@ -1,13 +1,17 @@
-expt_name: Debugging
-
-do_train: True
-do_test: True
+expt_name: Optimised_v8
 
 logging_dir: ./logs/
-checkpoint: False
-# checkpoint: ./logs/20240905_215938_Debugging/lightning_logs/version_15267989/checkpoints/epoch=99-step=300.ckpt
+# checkpoint: False
+checkpoint: ./logs/20240906_211042_Optimised_v8/lightning_logs/version_15330562/checkpoints/epoch=50-step=153.ckpt
 
 seed: 42
+
+arch:
+  # out_channel_conv1: 8
+  # out_channel_conv2: 16
+  # dropout: 0.4
+  out_channel_conv1: 8
+  dropout: 0.0
 
 data:
   data_dir: ./data/
@@ -15,6 +19,7 @@ data:
   n_mfcc: 25
   max_mfcc_length: 85 # may be calculated as floor(0.5 * sample_rate * window_length / hop_length) + 1
   num_workers: 12
+
 train:
   lr: 0.001
   max_epochs: 100
