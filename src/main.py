@@ -27,30 +27,31 @@ def main():
     config.logging_dir = logging_dir # update logging_dir to use later
 
     if config.do_train:
-        print("\nTraining mode")
         train_loader, val_loader = get_train_val_dataloader(config)
-        devices = "auto" # use all GPUs if available
 
     if config.do_test:
-        print("\nInference mode")
         test_loader = get_test_dataloader(config)
-        devices = 1 # recommended to use 1 GPU for testing
 
     trainer = L.Trainer(
         max_epochs=config.train.max_epochs,
         deterministic=True,
-        devices=devices,
+        devices="auto",
         accelerator="auto",
         log_every_n_steps=3,
         default_root_dir=config.logging_dir,
-        # callbacks=[
-        #     ModelCheckpoint(
-        #         monitor="val_loss",
-        #         filename="best_model",
-        #         save_top_k=1,
-        #         mode="min"
-        #     )
-        # ]
+        callbacks=[
+            L.pytorch.callbacks.ModelCheckpoint(
+                monitor="val_loss",
+                filename="best_model",
+                save_top_k=1,
+                mode="min"
+            ),
+            L.pytorch.callbacks.EarlyStopping(
+                monitor="val_loss",
+                patience=3,
+                mode="min"
+            )
+        ]
     )
 
     if config.checkpoint:
@@ -62,23 +63,25 @@ def main():
         )
 
     if config.do_train:
+        print("\nTraining the model...")
         trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
         model = CNN1D.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     if config.do_test:
+        print("\nTesting the model...")
         import torch
         from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model = CNN1D.load_from_checkpoint(config.checkpoint)
+        
         model = model.to(device)
         y_all, y_pred_all = [], []
         for batch in test_loader:
             x, y = batch
             y_pred = model(x.to(device))
-            y_pred = torch.round(torch.sigmoid(y_pred)).int().tolist()
-            y_all.extend(y.tolist())
-            y_pred_all.extend(y_pred)
+            y_pred = torch.round(torch.sigmoid(y_pred))
+            y_all.extend(y.int().tolist())
+            y_pred_all.extend(y_pred.int().tolist())
     
         accuracy = accuracy_score(y_all, y_pred_all)
         precision = precision_score(y_all, y_pred_all)

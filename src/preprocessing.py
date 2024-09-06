@@ -34,7 +34,7 @@ class DataModule(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         audio_file = self.audio_files[idx]
-        label = torch.tensor(self.labels[idx], dtype=torch.int8)
+        label = torch.tensor(self.labels[idx], dtype=torch.float32) # float32 for BCEWithLogitsLoss
 
         mfcc = self._calculate_mfcc(audio_file)
         

@@ -1,10 +1,11 @@
 expt_name: Debugging
 
-do_train: False
+do_train: True
 do_test: True
 
 logging_dir: ./logs/
-checkpoint: ./logs/20240905_215938_Debugging/lightning_logs/version_15267989/checkpoints/epoch=99-step=300.ckpt
+checkpoint: False
+# checkpoint: ./logs/20240905_215938_Debugging/lightning_logs/version_15267989/checkpoints/epoch=99-step=300.ckpt
 
 seed: 42
 
