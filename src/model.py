@@ -9,13 +9,13 @@ class CNN1D(L.LightningModule):
         super().__init__()
         self.config = config
 
-        self.num_conv = config.arch.num_conv
+        self.num_conv = len(config.arch.out_channels)
         self.pooling_kernel_size = config.arch.pooling_kernel_size
 
         self.conv_layers = nn.ModuleList()
         in_channels = config.data.n_mfcc
         for i in range(self.num_conv):
-            out_channels = config.arch.out_channel_conv[i]
+            out_channels = config.arch.out_channels[i]
             self.conv_layers.append(
                 nn.Conv1d(
                     in_channels, 

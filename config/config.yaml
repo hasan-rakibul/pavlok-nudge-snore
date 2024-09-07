@@ -1,14 +1,13 @@
-expt_name: Optimised_v10
+expt_name: Final-8-16
 
 logging_dir: ./logs/
-# checkpoint: False
-checkpoint: ./logs/20240906_215442_Optimised_v10/lightning_logs/version_15330562/checkpoints/epoch=48-step=147.ckpt
+train_checkpoint: False # to resume training from a checkpoint
+test_checkpoint: ./logs/20240907_083613_Final-8-16/lightning_logs/version_15330562/checkpoints/epoch=48-step=147.ckpt
 
 seed: 42
 
 arch:
-  num_conv: 2
-  out_channel_conv: [8, 16]
+  out_channels: [8, 16] # for conv layers
   pooling_kernel_size: 2
   dropout: 0.4
 

@@ -12,10 +12,10 @@ def main():
 
     L.seed_everything(config.seed)
 
-    if config.checkpoint:
+    if config.train_checkpoint:
         # use >./logs/... as logging_dir if checkpoint is provided
-        print(f"\nLoading checkpoint from {config.checkpoint}")
-        logging_dir = os.path.join(*config.checkpoint.split("/")[:3])
+        print(f"\nLoading checkpoint from {config.train_checkpoint}")
+        logging_dir = os.path.join(*config.train_checkpoint.split("/")[:3])
     else:
         logging_dir=os.path.join(
             config.logging_dir, 
@@ -47,12 +47,13 @@ def main():
         ]
     )
 
-    if config.checkpoint:
-        model = CNN1D.load_from_checkpoint(config.checkpoint)
+    if config.train_checkpoint:
+        model = CNN1D.load_from_checkpoint(config.train_checkpoint)
+        trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader, ckpt_path=config.train_checkpoint)
     else:
         model = CNN1D(config)
+        trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
-    trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
     trainer.validate(model, dataloaders=val_loader, verbose=True)      
 
 if __name__ == "__main__":

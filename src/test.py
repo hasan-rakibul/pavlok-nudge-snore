@@ -13,11 +13,11 @@ def main():
 
     L.seed_everything(config.seed)
 
-    assert config.checkpoint, "Checkpoint is required for testing the model without training"
-    config.logging_dir = os.path.join(*config.checkpoint.split("/")[:3])
+    assert config.test_checkpoint, "Checkpoint is required for testing the model without training"
+    config.logging_dir = os.path.join(*config.test_checkpoint.split("/")[:3])
 
-    print(f"\nLoading checkpoint from {config.checkpoint}")
-    model = CNN1D.load_from_checkpoint(config.checkpoint)
+    print(f"\nLoading checkpoint from {config.test_checkpoint}")
+    model = CNN1D.load_from_checkpoint(config.test_checkpoint)
 
     test_loader = get_test_dataloader(config)
 
