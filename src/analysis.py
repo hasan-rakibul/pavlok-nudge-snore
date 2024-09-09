@@ -6,32 +6,39 @@ import matplotlib.pyplot as plt
 import scienceplots
 plt.style.use(['ieee', 'tableau-colorblind10'])
 
-def draw_roc_curve(config, y_true, y_pred):
-    fpr, tpr, _ = roc_curve(y_true, y_pred)
-    roc_auc = auc(fpr, tpr)
-    plt.figure()
-    plt.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc)
+def draw_roc_curve(config, y_true_files, y_pred_files):
+    label_names = config.analysis.label_names
+    plt.figure(figsize=(4, 3))
+    for i, (y_true_file, y_pred_file) in enumerate(zip(y_true_files, y_pred_files)):
+        assert os.path.exists(y_true_file) and os.path.exists(y_pred_file), \
+            "Ground truth and prediction files not found"
+        y_true = np.load(y_true_file)
+        y_pred = np.load(y_pred_file)
+        fpr, tpr, _ = roc_curve(y_true, y_pred)
+        roc_auc = auc(fpr, tpr)
+        plt.plot(fpr, tpr, label= label_names[i] + ' ROC (area = %0.2f)' % roc_auc)
+    
     plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
     plt.legend(loc="lower right")
-    plt.savefig(os.path.join(config.analysis.truth_prediction_dir, "roc_curve.pdf"), format="pdf", bbox_inches="tight")
-    plt.close()
 
+    save_dir = config.analysis.save_dir
+    os.makedirs(save_dir, exist_ok=True)
+    plt.savefig(os.path.join(save_dir, "roc_curve.pdf"), format="pdf", bbox_inches="tight")
+    plt.close()
 
 if __name__ == "__main__":
     config_file = "./config/config.yaml"
     config = OmegaConf.load(config_file)
 
-    y_true_file = os.path.join(config.analysis.truth_prediction_dir, "y_all.npy")
-    y_pred_file = os.path.join(config.analysis.truth_prediction_dir, "y_pred_all.npy")
+    truth_prediction_dirs = config.analysis.truth_prediction_dirs
 
-    assert os.path.exists(y_true_file) and os.path.exists(y_pred_file), \
-        "Ground truth and prediction files are required for analysis"
-
-    y_true = np.load(y_true_file)
-    y_pred = np.load(y_pred_file)
-
-    draw_roc_curve(config, y_true, y_pred)
+    y_true_files, y_pred_files = [], []
+    for dir in truth_prediction_dirs:
+        y_true_files.append(os.path.join(dir, "y_all.npy"))
+        y_pred_files.append(os.path.join(dir, "y_pred_all.npy"))
+    
+    draw_roc_curve(config, y_true_files, y_pred_files)

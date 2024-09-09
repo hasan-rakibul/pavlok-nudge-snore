@@ -20,9 +20,11 @@ train:
   max_epochs: 100
 
 ######## For test.py only ########
-test_checkpoint: ./logs/20240909_183334_Khan_and_MaleFemale-8-16/lightning_logs/version_15420361/checkpoints/epoch=20-step=147.ckpt
-test_folder_name: test
+test_checkpoint: ./logs/20240907_083613_Final-8-16/lightning_logs/version_15330562/checkpoints/epoch=48-step=147.ckpt
+test_folder_name: test_MaleFemale
 
 ######## For analysis.py only ########
 analysis:
-  truth_prediction_dir: ./logs/20240907_083613_Final-8-16/
+  truth_prediction_dirs: [./logs/20240907_083613_Final-8-16/test/, ./logs/20240909_183334_Khan_and_MaleFemale-8-16/test/]
+  label_names: [Khan, Khan & MaleFemale]
+  save_dir: ./logs/analysis/
