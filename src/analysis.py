@@ -17,7 +17,7 @@ def draw_roc_curve(config, y_true, y_pred):
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
     plt.legend(loc="lower right")
-    plt.savefig(os.path.join(config.logging_dir, "roc_curve.pdf"), format="pdf", bbox_inches="tight")
+    plt.savefig(os.path.join(config.analysis.truth_prediction_dir, "roc_curve.pdf"), format="pdf", bbox_inches="tight")
     plt.close()
 
 
@@ -25,7 +25,13 @@ if __name__ == "__main__":
     config_file = "./config/config.yaml"
     config = OmegaConf.load(config_file)
 
-    y_true = np.load(config.analysis.ground_truth_file)
-    y_pred = np.load(config.analysis.prediction_file)
+    y_true_file = os.path.join(config.analysis.truth_prediction_dir, "y_all.npy")
+    y_pred_file = os.path.join(config.analysis.truth_prediction_dir, "y_pred_all.npy")
+
+    assert os.path.exists(y_true_file) and os.path.exists(y_pred_file), \
+        "Ground truth and prediction files are required for analysis"
+
+    y_true = np.load(y_true_file)
+    y_pred = np.load(y_pred_file)
 
     draw_roc_curve(config, y_true, y_pred)

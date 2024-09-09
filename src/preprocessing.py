@@ -93,8 +93,9 @@ def get_train_val_dataloader(config):
     return train_loader, val_loader
     
 def get_test_dataloader(config):
-    assert 'test' in os.listdir(config.data.data_dir), 'Test directory not found.'    
-    test_dir = os.path.join(config.data.data_dir, 'test')
+    test_folder_name = config.test_folder_name
+    assert test_folder_name in os.listdir(config.data.data_dir), 'Test directory not found.'    
+    test_dir = os.path.join(config.data.data_dir, test_folder_name)
     test_dataset = DataModule(test_dir, config.data.n_mfcc, config.data.max_mfcc_length)
     test_loader = _get_dataloader(test_dataset, config, shuffle=False)
     return test_loader

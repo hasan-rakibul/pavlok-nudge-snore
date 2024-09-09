@@ -25,6 +25,8 @@ def main():
     config.logging_dir = logging_dir # update logging_dir to use later
 
     train_loader, val_loader = get_train_val_dataloader(config)
+    print("Number of training samples:", len(train_loader.dataset))
+    print("Number of validation samples:", len(val_loader.dataset), "\n")
 
     trainer = L.Trainer(
         max_epochs=config.train.max_epochs,

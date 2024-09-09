@@ -1,27 +1,28 @@
-expt_name: Final-8-16
-
-logging_dir: ./logs/
-train_checkpoint: False # to resume training from a checkpoint
-test_checkpoint: ./logs/20240907_083613_Final-8-16/lightning_logs/version_15330562/checkpoints/epoch=48-step=147.ckpt
-
-analysis:
-  ground_truth_file: ./logs/20240907_083613_Final-8-16/y_all.npy
-  prediction_file: ./logs/20240907_083613_Final-8-16/y_pred_all.npy
-
+###### For both train.py and test.py ######
 seed: 42
-
 arch:
   out_channels: [8, 16] # for conv layers
   pooling_kernel_size: 2
   dropout: 0.4
-
 data:
-  data_dir: ./data/
+  data_dir: ./data/Khan_and_MaleFemale/
   batch_size: 32
   n_mfcc: 25
   max_mfcc_length: 85 # may be calculated as floor(0.5 * sample_rate * window_length / hop_length) + 1
   num_workers: 12
 
+######## For train.py only ########
+expt_name: Khan_and_MaleFemale-8-16
+logging_dir: ./logs/
+train_checkpoint: False # to resume training from a checkpoint
 train:
   lr: 0.001
   max_epochs: 100
+
+######## For test.py only ########
+test_checkpoint: ./logs/20240909_183334_Khan_and_MaleFemale-8-16/lightning_logs/version_15420361/checkpoints/epoch=20-step=147.ckpt
+test_folder_name: test
+
+######## For analysis.py only ########
+analysis:
+  truth_prediction_dir: ./logs/20240907_083613_Final-8-16/

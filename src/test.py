@@ -16,11 +16,14 @@ def main():
 
     assert config.test_checkpoint, "Checkpoint is required for testing the model without training"
     config.logging_dir = os.path.join(*config.test_checkpoint.split("/")[:3])
+    config.logging_dir = os.path.join(config.logging_dir, config.test_folder_name) # as we may have two test folders
+    os.makedirs(config.logging_dir, exist_ok=True)
 
     print(f"\nLoading checkpoint from {config.test_checkpoint}")
     model = CNN1D.load_from_checkpoint(config.test_checkpoint)
 
     test_loader = get_test_dataloader(config)
+    print("Number of test samples:", len(test_loader.dataset))
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")   
 

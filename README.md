@@ -8,4 +8,4 @@ This repository is developed and tested on the following environment:
     - torchaudio==2.4.1+rocm6.1
     - torchmetrics==1.4.1
     - pytorch-lightning==2.4.0
-- ffmpeg 4.4.1, required for audio processing, installed in the OS.
+- ffmpeg 4.4.1, required for audio processing, installed in the OS. (If not installed, training/testing may raise a `RuntimeError: Couldn't find appropriate backend to handle uri file_name.wav and format None.`)
