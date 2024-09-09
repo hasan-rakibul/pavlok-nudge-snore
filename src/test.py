@@ -1,11 +1,12 @@
 import os
+import numpy as np
 from omegaconf import OmegaConf
 import torch
 import lightning as L
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 
 from preprocessing import get_test_dataloader
-from model import CNN1D 
+from model import CNN1D
 
 def main():
     config_file = "./config/config.yaml"
@@ -33,6 +34,10 @@ def main():
             y_pred = torch.round(torch.sigmoid(y_pred))
             y_all.extend(y.cpu().int().tolist())
             y_pred_all.extend(y_pred.cpu().int().tolist())
+
+    # save ground truths and predictions
+    np.save(os.path.join(config.logging_dir, "y_all.npy"), y_all)
+    np.save(os.path.join(config.logging_dir, "y_pred_all.npy"), y_pred_all)
 
     metrics = {
         "Accuracy": accuracy_score(y_all, y_pred_all),

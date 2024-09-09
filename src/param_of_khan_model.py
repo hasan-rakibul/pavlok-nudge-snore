@@ -1,3 +1,5 @@
+"""Just to count the number of parameters of Khan et al."""
+
 import torch.nn as nn
 
 class Khan2DCNN(nn.Module):

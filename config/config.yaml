@@ -4,6 +4,10 @@ logging_dir: ./logs/
 train_checkpoint: False # to resume training from a checkpoint
 test_checkpoint: ./logs/20240907_083613_Final-8-16/lightning_logs/version_15330562/checkpoints/epoch=48-step=147.ckpt
 
+analysis:
+  ground_truth_file: ./logs/20240907_083613_Final-8-16/y_all.npy
+  prediction_file: ./logs/20240907_083613_Final-8-16/y_pred_all.npy
+
 seed: 42
 
 arch:
