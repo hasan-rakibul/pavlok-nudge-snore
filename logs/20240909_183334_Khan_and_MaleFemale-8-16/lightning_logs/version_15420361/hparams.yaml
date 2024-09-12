@@ -1,0 +1,24 @@
+config:
+  seed: 42
+  arch:
+    out_channels:
+    - 8
+    - 16
+    pooling_kernel_size: 2
+    dropout: 0.4
+  data:
+    data_dir: ./data/Khan_and_MaleFemale/
+    batch_size: 32
+    n_mfcc: 25
+    max_mfcc_length: 85
+    num_workers: 12
+  expt_name: Khan_and_MaleFemale-8-16
+  logging_dir: ./logs/20240909_183334_Khan_and_MaleFemale-8-16
+  train_checkpoint: false
+  train:
+    lr: 0.001
+    max_epochs: 100
+  test_checkpoint: ./logs/20240907_083613_Final-8-16/lightning_logs/version_15330562/checkpoints/epoch=48-step=147.ckpt
+  test_folder_name: test_male_female
+  analysis:
+    truth_prediction_dir: ./logs/20240907_083613_Final-8-16/

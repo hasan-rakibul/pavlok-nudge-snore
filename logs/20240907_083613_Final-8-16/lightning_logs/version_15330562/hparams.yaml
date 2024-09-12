@@ -1,0 +1,20 @@
+config:
+  expt_name: Final
+  logging_dir: ./logs/20240907_083613_Final-8-16
+  checkpoint: false
+  seed: 42
+  arch:
+    out_channels:
+    - 8
+    - 16
+    pooling_kernel_size: 2
+    dropout: 0.4
+  data:
+    data_dir: ./data/
+    batch_size: 32
+    n_mfcc: 25
+    max_mfcc_length: 85
+    num_workers: 12
+  train:
+    lr: 0.001
+    max_epochs: 100

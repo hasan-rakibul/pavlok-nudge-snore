@@ -1,5 +1,7 @@
 data/
-logs/
+logs/**/test*
+logs/**/events.out.tfevents.*
+logs/analysis/
 
 make_env_ready.sh
 req_resources.sh
