@@ -4,6 +4,8 @@ from torchmetrics.classification import BinaryAccuracy
 import torch.nn as nn
 import torch.nn.functional as F
 
+from param_of_khan_model import Khan2DCNN
+
 class CNN1D(L.LightningModule):
     def __init__(self, config):
         super().__init__()
@@ -67,3 +69,56 @@ class CNN1D(L.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.config.train.lr)
         return optimizer
+
+class Khan2DCNNForNumericMFCC(Khan2DCNN):
+    def __init__(self):
+        super().__init__()
+        self.fc_layers = nn.Sequential(
+            nn.Flatten(),  # Flatten
+            nn.Linear(4864, 512),  # Dense_1 ## changed from 64 * 6 * 6 to 4864 to match the input shape
+            nn.ReLU(),  # Activation_5
+            nn.Dropout(0.5),  # Dropout_3
+            nn.Linear(512, 64),  # Dense_2
+            nn.ReLU(),  # Activation_6
+            nn.Linear(64, 1),  # Dense_3
+            nn.Sigmoid()  # Activation_7
+        )
+
+    def forward(self, x):
+        x = self.conv_layers(x)
+        x = self.fc_layers(x)
+        return x
+
+class Khan2DCNNLightning(L.LightningModule):
+    def __init__(self, lr):
+        super().__init__()
+        self.model = Khan2DCNNForNumericMFCC()
+        self.lr = lr
+        self.criterion = nn.BCEWithLogitsLoss()
+        self.save_hyperparameters()
+
+    def forward(self, x):
+        x = x.unsqueeze(1)  # add channel dimension for Conv2D
+        return self.model(x).squeeze(1)  # remove the last dimension to match the label shape
+    
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        y_pred = self(x)
+        loss = self.criterion(y_pred, y)
+        self.log('train_loss', loss, sync_dist=True)
+        return loss
+    
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        y_pred = self(x)
+        loss = self.criterion(y_pred, y)
+        self.log('val_loss', loss, sync_dist=True)
+        pred_labels = y_pred.sigmoid().round().int()
+        truth_labels = y.int()
+        acc = BinaryAccuracy().to(self.device)(pred_labels, truth_labels)
+        self.log('val_acc', acc, sync_dist=True)
+    
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        return optimizer
+    

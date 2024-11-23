@@ -2,12 +2,23 @@ import os
 import datetime
 from omegaconf import OmegaConf
 import lightning as L
+import argparse
 
 from preprocessing import get_train_val_dataloader
-from model import CNN1D
+from model import CNN1D, Khan2DCNNLightning
 
 def main():
-    config_file = "./config/config.yaml"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--khan", action="store_true", help="Use the Khan et al. model")
+
+    args = parser.parse_args()
+    if args.khan:
+        print("Using the Khan et al. model")
+        config_file = "./config/config_khan.yaml"
+    else:
+        print("Using the proposed model")
+        config_file = "./config/config.yaml"
+
     config = OmegaConf.load(config_file)
 
     L.seed_everything(config.seed)
@@ -27,15 +38,9 @@ def main():
     train_loader, val_loader = get_train_val_dataloader(config)
     print("Number of training samples:", len(train_loader.dataset))
     print("Number of validation samples:", len(val_loader.dataset), "\n")
-
-    trainer = L.Trainer(
-        max_epochs=config.train.max_epochs,
-        deterministic=True,
-        devices="auto",
-        accelerator="auto",
-        log_every_n_steps=3,
-        default_root_dir=config.logging_dir,
-        callbacks=[
+        
+    if not args.khan:
+        callbacks = [
             L.pytorch.callbacks.ModelCheckpoint(
                 monitor="val_loss",
                 save_top_k=1,
@@ -47,13 +52,32 @@ def main():
                 mode="min"
             )
         ]
+    else:
+        # Khan did not mention any early stopping in their paper
+        # so, just saving the last epoch
+        callbacks = [
+            L.pytorch.callbacks.ModelCheckpoint(
+                save_top_k=1
+            )
+        ]
+
+    trainer = L.Trainer(
+        max_epochs=config.train.max_epochs,
+        deterministic=True,
+        devices="auto",
+        accelerator="auto",
+        log_every_n_steps=3,
+        default_root_dir=config.logging_dir,
+        callbacks=callbacks
     )
 
     if config.train_checkpoint:
-        model = CNN1D.load_from_checkpoint(config.train_checkpoint)
+        model = CNN1D.load_from_checkpoint(config.train_checkpoint) if not args.khan \
+            else Khan2DCNNLightning.load_from_checkpoint(config.train_checkpoint)
+        
         trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader, ckpt_path=config.train_checkpoint)
     else:
-        model = CNN1D(config)
+        model = CNN1D(config) if not args.khan else Khan2DCNNLightning(config.train.lr)
         trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
     trainer.validate(model, dataloaders=val_loader, verbose=True)      

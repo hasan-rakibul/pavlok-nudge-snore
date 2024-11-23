@@ -2,8 +2,9 @@ data/
 logs/**/test*
 logs/**/events.out.tfevents.*
 logs/analysis/
+log_slurm/
 
-make_env_ready.sh
+.make_env_ready.sh
 req_resources.sh
 
 # Byte-compiled / optimized / DLL files

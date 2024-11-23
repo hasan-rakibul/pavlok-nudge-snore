@@ -3,13 +3,24 @@ import numpy as np
 from omegaconf import OmegaConf
 import torch
 import lightning as L
+import argparse
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 
 from preprocessing import get_test_dataloader
-from model import CNN1D
+from model import CNN1D, Khan2DCNNLightning
 
 def main():
-    config_file = "./config/config.yaml"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--khan", action="store_true", help="Use the Khan et al. model")
+
+    args = parser.parse_args()
+    if args.khan:
+        print("Using the Khan et al. model")
+        config_file = "./config/config_khan.yaml"
+    else:
+        print("Using the proposed model")
+        config_file = "./config/config.yaml"
+    
     config = OmegaConf.load(config_file)
 
     L.seed_everything(config.seed)
@@ -20,7 +31,8 @@ def main():
     os.makedirs(config.logging_dir, exist_ok=True)
 
     print(f"\nLoading checkpoint from {config.test_checkpoint}")
-    model = CNN1D.load_from_checkpoint(config.test_checkpoint)
+    model = CNN1D.load_from_checkpoint(config.test_checkpoint) if not args.khan \
+        else Khan2DCNNLightning.load_from_checkpoint(config.test_checkpoint)
 
     test_loader = get_test_dataloader(config)
     print("Number of test samples:", len(test_loader.dataset))

@@ -1,4 +1,4 @@
-"""Just to count the number of parameters of Khan et al."""
+"""Count the number of parameters of Khan et al."""
 
 import torch.nn as nn
 
@@ -31,6 +31,7 @@ class Khan2DCNN(nn.Module):
         )
 
     def forward(self, x):
+        import pdb; pdb.set_trace()
         x = self.conv_layers(x)
         x = self.fc_layers(x)
         return x
@@ -39,14 +40,16 @@ class Khan2DCNN(nn.Module):
 def count_trainable_params(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-# Initialize the model
-model = Khan2DCNN()
+if __name__ == "__main__":
 
-# Calculate the number of trainable parameters
-num_trainable_params = count_trainable_params(model)
+    # Initialize the model
+    model = Khan2DCNN()
 
-print(f"Total trainable parameters: {num_trainable_params}\n")
+    # Calculate the number of trainable parameters
+    num_trainable_params = count_trainable_params(model)
 
-# also by torchsummary
-# import torchsummary
-# print(torchsummary.summary(model, (1, 32, 32)))
+    print(f"Total trainable parameters: {num_trainable_params}\n")
+
+    # also by torchsummary
+    # import torchsummary
+    # print(torchsummary.summary(model, (1, 32, 32)))
