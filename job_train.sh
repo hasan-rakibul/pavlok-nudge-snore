@@ -2,7 +2,7 @@
  
 #SBATCH --job-name=Train
 #SBATCH --output=log_slurm/%j_%x.out
-#SBATCH --time=4:00:00
+#SBATCH --time=12:00:00
 #SBATCH --nodes=1
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1

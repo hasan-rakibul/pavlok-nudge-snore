@@ -42,7 +42,6 @@ def count_trainable_params(model):
 
 if __name__ == "__main__":
 
-    # Initialize the model
     model = Khan2DCNN()
 
     # Calculate the number of trainable parameters

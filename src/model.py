@@ -70,7 +70,7 @@ class CNN1D(L.LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.config.train.lr)
         return optimizer
 
-class Khan2DCNNForNumericMFCC(Khan2DCNN):
+class Khan2DCNNFor25By85MFCC(Khan2DCNN):
     def __init__(self):
         super().__init__()
         self.fc_layers = nn.Sequential(
@@ -92,7 +92,8 @@ class Khan2DCNNForNumericMFCC(Khan2DCNN):
 class Khan2DCNNLightning(L.LightningModule):
     def __init__(self, lr):
         super().__init__()
-        self.model = Khan2DCNNForNumericMFCC()
+        # self.model = Khan2DCNNFor25By85MFCC()
+        self.model = Khan2DCNN()
         self.lr = lr
         self.criterion = nn.BCEWithLogitsLoss()
         self.save_hyperparameters()
