@@ -31,7 +31,6 @@ class Khan2DCNN(nn.Module):
         )
 
     def forward(self, x):
-        import pdb; pdb.set_trace()
         x = self.conv_layers(x)
         x = self.fc_layers(x)
         return x

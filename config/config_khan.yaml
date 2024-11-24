@@ -4,8 +4,8 @@ seed: 42
 data:
   data_dir: ./data/Khan/
   batch_size: 32
-  n_mfcc: 25
-  max_mfcc_length: 85 # may be calculated as floor(0.5 * sample_rate * window_length / hop_length) + 1
+  n_mfcc: 32 # Like Khan
+  max_mfcc_length: 32 # Like Khan
   num_workers: 12
 
 ######## For train.py only ########
@@ -13,9 +13,9 @@ expt_name: Model-of-Khan
 logging_dir: ./logs/
 train_checkpoint: False # to resume training from a checkpoint
 train:
-  lr: 1.0e-5
-  max_epochs: 6000
+  lr: 1.0e-5 # Like Khan
+  max_epochs: 6000 # Like Khan
 
 ######## For test.py only ########
-test_checkpoint:  
+test_checkpoint: logs/20241124_015500_Model-of-Khan/lightning_logs/version_18561118/checkpoints/epoch=5999-step=132000.ckpt
 test_folder_name: test
