@@ -1,5 +1,7 @@
 # Pavlok-Nudge: A Feedback Mechanism for Atomic Behaviour Modification with Snoring Usecase
 
+Paper: [[arXiv](https://arxiv.org/abs/2305.06110)]
+
 ## Environment
 This repository is developed and tested on the following environment:
 - OS: SUSE Linux Enterprise Server 15 SP4
@@ -10,11 +12,13 @@ This repository is developed and tested on the following environment:
     - pytorch-lightning==2.4.0
 - ffmpeg 4.4.1, required for audio processing, installed in the OS. (If not installed, training/testing may raise a `RuntimeError: Couldn't find appropriate backend to handle uri some_file_name.wav and format None.`)
 
-## Major Components (some are yet to be added to this repository)
+## Major Components
 - [x] Snoring data Preprocessing
 - [x] Deep learning model for snoring detection
 - [x] Training and testing using Khan's dataset
 - [x] Training and testing using MaleFemale dataset
 - [x] Pretrained model checkpoints
+
+### To be added to this repo
 - [ ] Real-time snoring detection
 - [ ] Web tool
