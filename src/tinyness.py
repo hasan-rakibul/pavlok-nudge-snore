@@ -20,6 +20,8 @@ def count_flops():
     print("FLOPs:%s   MACs:%s   Params:%s \n" %(flops, macs, params)) # FLOPs:138.98 KFLOPS   MACs:67.46 KMACs   Params:1.34 K
 
     # Note: they don't match and so I am yet to find a reliable library to calculate FLOPs
+    # see https://github.com/MrYxJ/calculate-flops.pytorch/issues/56
+    # ^ They also reported that calflops provide 2x FLOPS, etc.. so perhaps I would trust fvcore
 
 if __name__ == "__main__":
     count_flops()
