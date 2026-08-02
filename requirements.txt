@@ -4,3 +4,9 @@ pandas
 numpy
 omegaconf
 tensorboard
+
+# flops-calculation
+fvcore
+calflops
+transformers
+
