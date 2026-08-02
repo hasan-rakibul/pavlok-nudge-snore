@@ -1,6 +1,9 @@
 ###### For both train.py and test.py ######
 seed: 42
 arch:
+  # out_channels: [8] # for conv layers
+  # out_channels: [16] # for conv layers
+  # out_channels: [4, 8] # for conv layers
   out_channels: [8, 16] # for conv layers
   pooling_kernel_size: 2
   dropout: 0.4

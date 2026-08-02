@@ -1,16 +1,31 @@
+import argparse
 import torch
 from omegaconf import OmegaConf
 
 from fvcore.nn import FlopCountAnalysis
 from calflops import calculate_flops
 
-from model import CNN1D
+from model import CNN1D, Khan2DCNNLightning
 
 def count_flops():
-    config_file = "./config/config.yaml"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--khan", action="store_true", help="Use the Khan et al. model")
+
+    args = parser.parse_args()
+    if args.khan:
+        print("Using the Khan et al. model")
+        config_file = "./config/config_khan.yaml"
+    else:
+        print("Using the proposed model")
+        config_file = "./config/config.yaml"
+
     config = OmegaConf.load(config_file)
 
-    model = CNN1D(config)
+    if args.khan:
+        model = Khan2DCNNLightning(config.train.lr)
+    else:
+        model = CNN1D(config)
+    
     sample_input = torch.randn(1, config.data.n_mfcc, config.data.max_mfcc_length)
     flops = FlopCountAnalysis(model, sample_input)
     print(flops.total()/1e3, "K FLOPs") # 67.464 K FLOPs
@@ -18,6 +33,9 @@ def count_flops():
     flops, macs, params = calculate_flops(model= model, input_shape = (1, config.data.n_mfcc, config.data.max_mfcc_length),
                                           output_as_string=True)
     print("FLOPs:%s   MACs:%s   Params:%s \n" %(flops, macs, params)) # FLOPs:138.98 KFLOPS   MACs:67.46 KMACs   Params:1.34 K
+
+    # double checking params calculation for reporing in paper
+    print("Number of params (direct calc): ", sum(p.numel() for p in model.parameters() if p.requires_grad))
 
     # Note: they don't match and so I am yet to find a reliable library to calculate FLOPs
     # see https://github.com/MrYxJ/calculate-flops.pytorch/issues/56
